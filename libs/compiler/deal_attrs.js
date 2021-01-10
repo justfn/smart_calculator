@@ -74,7 +74,7 @@ function deal_class(elem, value){
     let vl = value.reduce((retV,itm)=>{ 
       let it = itm; 
       if (isVary(itm)) { 
-        it = itm.value;
+        it = itm.get(false);
         itm.$mounted_run(elem.classList);
         // 收集更新 
         itm.$add_set((p_v, n_v)=>{
@@ -99,7 +99,7 @@ function deal_class(elem, value){
 } 
 function deal_style(elem, value){
   if (isVary(value)) {
-    deal_style(elem,value.get());
+    deal_style(elem, value.get(false));
     // todo 
     console.warn('# todo style', elem, value);
     return ;
@@ -112,7 +112,7 @@ function deal_style(elem, value){
     for(var ky in value){
       let vl = value[ky];
       if (isVary(vl)) {
-        elem.style[ky] = vl.get();
+        elem.style[ky] = vl.get(false);
         vl.$add_set((p_v,n_v)=>{
           elem.style[ky] = n_v;
           return [n_v];
@@ -149,7 +149,7 @@ function deal_form_elems(elem,key,val){
   if (elem.nodeName.toLowerCase()==='input' && key==='value') {
     let inputVal = val;
     if (isVary(val)) {
-      inputVal = val.get();
+      inputVal = val.get(false);
       val.$add_set((p_v,n_v)=>{
         elem.value = n_v;
         return [n_v];

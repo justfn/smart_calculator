@@ -5,7 +5,7 @@ import { isVary, } from "../vary/Vary.js";
 export default function main(elem, child, varyWrap, isCpt ) {
   /* brance: vary */
   if (isVary(child)) { 
-    main(elem, child.value, child, isCpt); 
+    main(elem, child.get(false), child, isCpt); 
     return ;
   }
   /* brance: arr */

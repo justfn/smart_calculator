@@ -7,7 +7,7 @@ export default function main(tag, attrs, varyWrap){
   /* Vary */
   if (isVary(tag)) {
     // tag.$mounted_run();
-    return main(tag.value, attrs, tag);
+    return main(tag.get(false), attrs, tag);
   }
   
   /* output 1: component */
@@ -76,8 +76,7 @@ export default function main(tag, attrs, varyWrap){
 }
 function add_cpt_apis(cpt,attrs){
   let mountedFns = [];
-  let _attrs = {...attrs}
-  let elem = cpt(_attrs, {
+  let elem = cpt(attrs, {
     // 搜集初始化执行操作 
     mounted: (fn)=>{
       mountedFns.push(fn)

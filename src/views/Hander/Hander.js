@@ -5,14 +5,24 @@ import "./Hander.less";
 let calc_list = [
   // {
   //   type: 'num',
-  //   val: '123123',
+  //   val: [[1,3,2,0],[1,3]],
   // },
   // {
   //   type: 'calc',
   //   val: '+',
   // },
 ]
-let num_tmp = '';
+let num_tmp_idx = 0;
+let num_tmp = [
+  [],
+  []
+];
+// function lastItmType(flg){
+//   let lastItm = calc_list[calc_list.length-1];
+//   if (lastItm && lastItm.type===flg) { return true; }
+// 
+//   return false;
+// } 
 export default function(props, context){
   function getRows(){
     return Array(3).fill(null).map((itm,idx)=>{
@@ -25,7 +35,7 @@ export default function(props, context){
     return Array(3).fill(null).map((itm,idx)=>{
       let num = (rowNum*3+idx+1)%10;
       return (
-        <button class="col nums_col" onClick={()=>numClickFn(`${num}`)}> 
+        <button class="col nums_col" onClick={()=>numClickFn(num)}> 
           { num } 
         </button>
       )
@@ -33,26 +43,43 @@ export default function(props, context){
   }
 
   function numClickFn(num){
-    num_tmp += num;
+    num_tmp[num_tmp_idx].push(num);
     let lastItm = calc_list[calc_list.length-1];
     if (!lastItm || lastItm.type!=='num') {
-      calc_list.push({
+      lastItm = {
         type: 'num',
         val: num_tmp,
-      })
-      lastItm = calc_list[calc_list.length-1];
+        dot: '', 
+      }
+      calc_list.push(lastItm);
     }
     lastItm.val = num_tmp;
     props.change(calc_list);
   } 
+  function dotClickFn(){
+    if (num_tmp_idx===0) {
+      num_tmp_idx = 1;
+    }
+    let lastItm = calc_list[calc_list.length-1];
+    if (lastItm && lastItm.type==='num') {
+      lastItm.dot = '.';
+      props.change(calc_list);
+    }
+  }
   function calcCickFn(calc){
+    num_tmp_idx = 0; 
+    let lastItm = calc_list[calc_list.length-1];
+    if (lastItm.type==='calc') {
+      calc_list.pop();
+    }
     calc_list.push({
       type: 'calc',
       val: calc,
     });
-    num_tmp = '';
+    num_tmp = [[],[]];
     props.change(calc_list);
-    console.log( calc_list );
+  } 
+  function backClickFn(){
   } 
   function calcRn(){
     props.calc_run();
@@ -63,9 +90,9 @@ export default function(props, context){
       <button onClick={calcRn}>run</button>
       { getRows() }
       <div class="row nums_row">
-        <button class="col nums_col" onClick={()=>numClickFn('0')}>0</button>
-        <button class="col nums_col" onClick={()=>numClickFn('00')}>00</button>
-        <button class="col nums_col" onClick={()=>numClickFn('.')}>.</button>
+        <button class="col nums_col" onClick={()=>numClickFn(0)}>0</button>
+        <button class="col nums_col" onClick={()=>dotClickFn()}>●</button>
+        <button class="col nums_col" onClick={()=>backClickFn()}>←</button>
       </div>
       <div class="row calc_row">
         <button class="col calc_col" onClick={()=>calcCickFn('+')}>+</button>

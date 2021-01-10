@@ -6,7 +6,7 @@ import "./layout.less";
 
 
 export default function(props, context){
-  let calc_list = useVary(['']);
+  let calc_list = useVary([]);
   function handleChange(list){
     calc_list.set(()=>{
       return list;
@@ -23,7 +23,7 @@ export default function(props, context){
           <Screen list={calc_list} /> 
         </div>
         <div class="part_hander">       
-          <Hander change={handleChange}  /> 
+          <Hander change={handleChange} calc_run={calc_run}  /> 
         </div>
       </div>
       <div class="layout_rit">
