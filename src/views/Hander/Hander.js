@@ -43,7 +43,8 @@ export default function(props, context){
   }
 
   function numClickFn(num){
-    num_tmp[num_tmp_idx].push(num);
+    let arr = num_tmp[num_tmp_idx];
+    if (arr.length!==0 || num!==0) { arr.push(num); }
     let lastItm = calc_list[calc_list.length-1];
     if (!lastItm || lastItm.type!=='num') {
       lastItm = {
