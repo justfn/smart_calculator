@@ -1,4 +1,4 @@
-import { useVary, } from "../../../libs/index.js";
+import { useVary, } from "../../../fd_libs/index.js";
 
 
 import "./Screen.less";
@@ -39,13 +39,14 @@ export default function(props, context){
     })
     return str; 
   })
-  const addLine = useVary(props.addLine, ()=>{
+  
+  context.addLine = ()=>{
     lines.set((list)=>{
       let l = [...list];
       l.push('result')
       return l;
     })
-  })
+  }
   return (
     <section class="Screen">
       { lines }

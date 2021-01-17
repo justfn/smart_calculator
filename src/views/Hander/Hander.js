@@ -1,4 +1,4 @@
-import { useVary, } from "../../../libs/index.js";
+import { useVary, } from "../../../fd_libs/index.js";
 
 import "./Hander.less";
 
@@ -87,12 +87,12 @@ export default function(props, context){
     backClickFn(){
     }, 
     calcRn(){
+      props.calc_run();
     }, 
   };
   
   return (
     <section class="Hander">
-      <button onClick={calc_expr.calcRn}>run</button>
       { elems.getRows() }
       <div class="row nums_row">
         <button class="col nums_col" onClick={()=>calc_expr.numClickFn(0)}>0</button>
@@ -105,6 +105,7 @@ export default function(props, context){
         <button class="col calc_col" onClick={()=>calc_expr.calcCickFn('*')}>*</button>
         <button class="col calc_col" onClick={()=>calc_expr.calcCickFn('/')}>/</button>
       </div>
+      <button class="runBtn" onClick={calc_expr.calcRn}>run</button>
     </section>
   );
 }

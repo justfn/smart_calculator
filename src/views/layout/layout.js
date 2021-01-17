@@ -1,4 +1,4 @@
-import { useVary, } from "../../../libs/index.js";
+import { useVary, } from "../../../fd_libs/index.js";
 
 import Screen from "../Screen/Screen.js";
 import Hander from "../Hander/Hander.js";
@@ -14,14 +14,15 @@ export default function(props, context){
     });
   } 
   function calc_run(){
-    console.log( screenRef );
+    // console.log( screenRef );
+    screenRef.addLine();
   } 
   
   return (
     <section class="smart_calculator" >
       <div class="layout_lft">
         <div class="part_screen">
-          <Screen list={calc_list} ref={screen=>screenRef=screen} /> 
+          <Screen list={calc_list} ref={ctx=>screenRef=ctx} /> 
         </div>
         <div class="part_hander">       
           <Hander change={handleChange} calc_run={calc_run}  /> 
@@ -35,8 +36,6 @@ export default function(props, context){
           历史
         </div>
       </div>
-      
-      <button onClick={calc_run}>11111111</button>
     </section>
   );
 }
