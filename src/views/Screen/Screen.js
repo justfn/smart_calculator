@@ -4,9 +4,17 @@ import { useVary, } from "../../../libs/index.js";
 import "./Screen.less";
 
 export default function(props, context){
-  let lines = useVary(props.list.value, (list)=>{
+  const lines = useVary([], (list)=>{
+    return list.map((lineItm,idx)=>{
+      return (
+        <div class="Screen_row"> {context.html('&nbsp;')} { lineItm }</div>
+      )
+    });
+  })
+  const line = useVary(props.list, (list)=>{
+    list = list.value;
+    console.log( '# 01', list);
     let str = '';
-    console.log( list );
     list.map((itm,idx)=>{
       if (itm.type==='calc') {
         str += itm.val
@@ -21,15 +29,26 @@ export default function(props, context){
         })
       }
     });
+    lines.set((linesList)=>{
+      let lastLine = linesList[linesList.length-1];
+      if (!lastLine) { return [str]; }
+      let l = [...linesList]
+      l.pop()
+      l.push(str)
+      return l;
+    })
     return str; 
-  });
-  props.list.watch((p_v,n_v)=>{
-    lines.value = n_v;
-  });
-  
+  })
+  const addLine = useVary(props.addLine, ()=>{
+    lines.set((list)=>{
+      let l = [...list];
+      l.push('result')
+      return l;
+    })
+  })
   return (
     <section class="Screen">
-      <div class="Screen_row"> {context.html('&nbsp;')} { lines }</div>
+      { lines }
     </section>
   );
 }

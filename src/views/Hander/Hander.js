@@ -2,109 +2,109 @@ import { useVary, } from "../../../libs/index.js";
 
 import "./Hander.less";
 
-let calc_list = [
-  // {
-  //   type: 'num',
-  //   val: [[1,3,2,0],[1,3]],
-  // },
-  // {
-  //   type: 'calc',
-  //   val: '+',
-  // },
-]
-let num_tmp_idx = 0;
-let num_tmp = [
-  [],
-  []
-];
-// function lastItmType(flg){
-//   let lastItm = calc_list[calc_list.length-1];
-//   if (lastItm && lastItm.type===flg) { return true; }
-// 
-//   return false;
-// } 
 export default function(props, context){
-  function getRows(){
-    return Array(3).fill(null).map((itm,idx)=>{
-    return (
-      <div class="row nums_row"> { getCols(idx) } </div>
-    )
-  })
-  } 
-  function getCols(rowNum){
-    return Array(3).fill(null).map((itm,idx)=>{
-      let num = (rowNum*3+idx+1)%10;
-      return (
-        <button class="col nums_col" onClick={()=>numClickFn(num)}> 
-          { num } 
-        </button>
-      )
-    })
-  }
-
-  function numClickFn(num){
-    let arr = num_tmp[num_tmp_idx];
-    if (arr.length!==0 || num!==0) { arr.push(num); }
-    let lastItm = calc_list[calc_list.length-1];
-    if (!lastItm || lastItm.type!=='num') {
-      lastItm = {
-        type: 'num',
-        val: num_tmp,
-        dot: '', 
+  const elems = {
+    getRows(){
+      return Array(3).fill(null).map((itm,idx)=>{
+        return (
+          <div class="row nums_row"> { this.getCols(idx) } </div>
+        )
+      })
+    },
+    getCols(rowNum){
+      return Array(3).fill(null).map((itm,idx)=>{
+        let num = (rowNum*3+idx+1)%10;
+        return (
+          <button class="col nums_col" onClick={()=>calc_expr.numClickFn(num)}> 
+            { num } 
+          </button>
+        )
+      })
+    },
+  };
+  const calc_expr = {
+    numTmpIdx: 0, 
+    numTmpArr: [ [], [] ],
+    calcList: [
+      // {
+      //   type: 'num',
+      //   val: [[1,3,2,0],[1,3]],
+      //   dot: '.',
+      // },
+      // {
+      //   type: 'calc',
+      //   val: '+',
+      // },
+    ],
+    numClickFn(num){
+      if ( this.numTmpArr[1].length>=2 ) { return ; }
+      
+      let arr = this.numTmpArr[this.numTmpIdx];
+      if (arr.length!==0 || num!==0) { arr.push(num); }
+      let lastItm = this.calcList[this.calcList.length-1];
+      if (!lastItm || lastItm.type!=='num') {
+        lastItm = {
+          type: 'num',
+          val: this.numTmpArr,
+          dot: '', 
+        }
+        this.calcList.push(lastItm);
       }
-      calc_list.push(lastItm);
-    }
-    lastItm.val = num_tmp;
-    props.change(calc_list);
-  } 
-  function dotClickFn(){
-    if (num_tmp_idx===0) {
-      num_tmp_idx = 1;
-    }
-    let lastItm = calc_list[calc_list.length-1];
-    if (lastItm && lastItm.type==='num') {
-      lastItm.dot = '.';
-      props.change(calc_list);
-    }
-  }
-  function calcCickFn(calc){
-    num_tmp_idx = 0; 
-    let lastItm = calc_list[calc_list.length-1];
-    if (lastItm.type==='calc') {
-      calc_list.pop();
-    }
-    calc_list.push({
-      type: 'calc',
-      val: calc,
-    });
-    num_tmp = [[],[]];
-    props.change(calc_list);
-  } 
-  function backClickFn(){
-  } 
-  function calcRn(){
-    props.calc_run();
-  } 
+      lastItm.val = this.numTmpArr;
+      props.change(this.calcList);
+    },
+    dotClickFn(){
+      if (this.numTmpIdx===0) {
+        this.numTmpIdx = 1;
+      }
+      let lastItm = this.calcList[this.calcList.length-1];
+      if (lastItm && lastItm.type==='num') {
+        lastItm.dot = '.';
+        props.change(this.calcList);
+      }
+    },
+    calcCickFn(calc){
+      this.numTmpIdx = 0; 
+      let lastItm = this.calcList[this.calcList.length-1];
+      if (lastItm.type==='calc') {
+        this.calcList.pop();
+      }
+      else {
+        if (lastItm.val[1].length!==2) {
+          lastItm.dot = '.'
+          Array(2).fill(null).forEach((itm,idx)=>{
+            lastItm.val[1][idx] = lastItm.val[1][idx] ?? 0;
+          })
+        }
+      }
+      this.calcList.push({
+        type: 'calc',
+        val: calc,
+      });
+      this.numTmpArr = [[],[]];
+      props.change(this.calcList);
+    },
+    backClickFn(){
+    }, 
+    calcRn(){
+    }, 
+  };
   
   return (
     <section class="Hander">
-      <button onClick={calcRn}>run</button>
-      { getRows() }
+      <button onClick={calc_expr.calcRn}>run</button>
+      { elems.getRows() }
       <div class="row nums_row">
-        <button class="col nums_col" onClick={()=>numClickFn(0)}>0</button>
-        <button class="col nums_col" onClick={()=>dotClickFn()}>●</button>
-        <button class="col nums_col" onClick={()=>backClickFn()}>←</button>
+        <button class="col nums_col" onClick={()=>calc_expr.numClickFn(0)}>0</button>
+        <button class="col nums_col" onClick={()=>calc_expr.dotClickFn()}>●</button>
+        <button class="col nums_col" onClick={()=>calc_expr.backClickFn()}>←</button>
       </div>
       <div class="row calc_row">
-        <button class="col calc_col" onClick={()=>calcCickFn('+')}>+</button>
-        <button class="col calc_col" onClick={()=>calcCickFn('-')}>-</button>
-        <button class="col calc_col" onClick={()=>calcCickFn('*')}>*</button>
-        <button class="col calc_col" onClick={()=>calcCickFn('/')}>/</button>
+        <button class="col calc_col" onClick={()=>calc_expr.calcCickFn('+')}>+</button>
+        <button class="col calc_col" onClick={()=>calc_expr.calcCickFn('-')}>-</button>
+        <button class="col calc_col" onClick={()=>calc_expr.calcCickFn('*')}>*</button>
+        <button class="col calc_col" onClick={()=>calc_expr.calcCickFn('/')}>/</button>
       </div>
-      
-      
-      
-      
     </section>
   );
 }

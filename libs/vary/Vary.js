@@ -14,23 +14,36 @@
 
 /* 可变量类 
 */
+const symbol_1 = Symbol('cache_value'); // 唯一标识1 
 export default class Vary {
   constructor(val, trimFn, nId) {
-    this.isAlive = true; 
     this._num_id = nId ?? NaN;
+    
+    this.isAlive = true; 
     this._value = val; 
     this._trimValueFn =  trimFn ?? (v=>v); // 整理返回值 
+    this._valueTrimed = this._trimValueFn(val);
+    this.__valueTrimedNxt = symbol_1; // 缓存下一次格式化的值,避免多次执行'_trimValueFn'函数  
+    if (isVary(val)) {
+      val.watch((preV,nxtV,preVTrimed,nxtVTrimed)=>{
+        this.set((pre_v)=>{
+          return val;
+        })
+      })
+    }
+    
     this._mounteds = [];
+    
     this._sets = [];
     this._watchs = [];
   }
   
-  /* 对外接口 */
+  /* 对外接口 ================================================================ */
   // 取值 
   get = (isOriginal=true)=>{ 
     if (isOriginal) { return this._value; }
     
-    return this._trimValueFn(this._value); 
+    return this._valueTrimed; 
   }
   get value(){ return this.get(true); }
   // 设值  
@@ -42,6 +55,7 @@ export default class Vary {
     let nxt_v = null;
     if (isLazy) { 
       nxt_v = setHandle(pre_v, pre_v_t); 
+      this.__valueTrimedNxt = this._trimValueFn(nxt_v);
       this._sets.forEach(setFn=>{ setFn(nxt_v, isLazy); });
     }
     else {
@@ -50,8 +64,11 @@ export default class Vary {
       });
     }
     this._value = nxt_v;
+    let tmpV = this._valueTrimed;
+    this._valueTrimed = this.__valueTrimedNxt;
+    this.__valueTrimedNxt = symbol_1; 
     this._watchs.forEach( watchFn=>{
-      watchFn(pre_v, nxt_v, this._trimValueFn(pre_v), this._trimValueFn(nxt_v));
+      watchFn(pre_v, nxt_v, tmpV, this._valueTrimed);
     })
     return Promise.resolve(nxt_v);
   }
@@ -62,8 +79,8 @@ export default class Vary {
   }
   // 收集更新时执行的函数 
   watch = (watchHandle)=>{
-    this._watchs.push((p_v, n_v)=>{
-      watchHandle(p_v, n_v);
+    this._watchs.push((p_v, n_v, pVTrimed, nVTrimed)=>{
+      watchHandle(p_v, n_v, pVTrimed, nVTrimed);
     })
   }
   // 控制开关 
@@ -80,15 +97,20 @@ export default class Vary {
     }
   }  
   
-  /* 工具方法 */
+  /* 工具方法 ================================================================ */
   // 收集更新 
   $add_set = (setRun, ...moreInfo)=>{
     this._sets.push((setVal, isLazy)=>{
       let pre_v = this.get(true);
       let pre_v_t = this.get(false);
       let nxt_v = setVal; 
-      if (!isLazy) { nxt_v = setVal(pre_v, pre_v_t, ...moreInfo); }
-      let args = setRun(pre_v_t, this._trimValueFn(nxt_v), pre_v, nxt_v, ...moreInfo);
+      if (!isLazy) { 
+        nxt_v = setVal(pre_v, pre_v_t, ...moreInfo); 
+        if (this.__valueTrimedNxt===symbol_1) {
+          this.__valueTrimedNxt = this._trimValueFn(nxt_v);
+        }
+      }
+      let args = setRun(pre_v_t, this.__valueTrimedNxt, pre_v, nxt_v, ...moreInfo);
       return [nxt_v, ...args];
     });
   }

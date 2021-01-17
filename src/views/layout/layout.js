@@ -6,6 +6,7 @@ import "./layout.less";
 
 
 export default function(props, context){
+  let screenRef = null;
   let calc_list = useVary([]);
   function handleChange(list){
     calc_list.set(()=>{
@@ -13,14 +14,14 @@ export default function(props, context){
     });
   } 
   function calc_run(){
-    console.log('run');
+    console.log( screenRef );
   } 
   
   return (
-    <section class="smart_calculator">
+    <section class="smart_calculator" >
       <div class="layout_lft">
         <div class="part_screen">
-          <Screen list={calc_list} /> 
+          <Screen list={calc_list} ref={screen=>screenRef=screen} /> 
         </div>
         <div class="part_hander">       
           <Hander change={handleChange} calc_run={calc_run}  /> 
@@ -34,6 +35,8 @@ export default function(props, context){
           历史
         </div>
       </div>
+      
+      <button onClick={calc_run}>11111111</button>
     </section>
   );
 }
