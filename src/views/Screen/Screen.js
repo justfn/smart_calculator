@@ -1,4 +1,4 @@
-import { useVary, } from "../../../fd_libs/index.js";
+import { useVary, } from "../../../fd_lib/index.js";
 
 
 import "./Screen.less";

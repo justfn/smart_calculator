@@ -1,5 +1,5 @@
 
-import { Router, } from "../../fd_libs/index.js";
+import { Router, } from "../../fd_lib/index.js";
 
 
 export default new Router({
